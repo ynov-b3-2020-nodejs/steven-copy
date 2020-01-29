@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <title>@@@@@@@</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css">
+</head>
+<body>
+
+
+<div class="container-fluid">
+    <div id="app">
+        <h1>Liste aléatoire d'utilisateurs</h1>
+        <button @click="fetchUsers" class="btn btn-warning">Générer des utilisateurs</button>
+        <div v-if="users.length">
+            <button @click="coucou" class="btn btn-dark"> COUCOU</button>
+            <span style="margin-left: 10px;" class="badge badge-dark"> {{filteredUsers.length}} utilisateurs filtrés / {{users.length}} résultat(s) </span>
+
+            <span style="margin-left: 100px;">Filtre :</span>
+            <input type="radio" v-model="gender" value="male"> <img
+                style="width: 20px; height: 20px; margin-right: 10px;"
+                src="https://www.pnglot.com/pngfile/detail/27-275660_male-gender-symbol-icon-man-png-image-circle.png">
+            <input type="radio" v-model="gender" value="female"> <img
+                style="width: 20px; height: 20px;margin-right: 10px;"
+                src="https://image.flaticon.com/icons/png/512/38/38373.png">
+            <input type="radio" v-model="gender" value="other"> <img
+                style="width: 20px; height: 20px;margin-right: 10px;"
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDfe3SQ1K-qPInVqpZQqRfLXzkkwtgUDMNuY6jZtqlxcRK-Yof&s">
+            <input v-model="searchText" class="form-control mr-sm-2" type="text" placeholder="Search"
+                   aria-label="Search" style="width: 200px;margin-left: 70%;margin-top: -39px;">
+            <button @click="setAgeSorting">
+                Age
+                <i class="fas" :class="{'fa-sort': ageSorting === 0,'fa-sort-up': ageSorting === 1, 'fa-sort-down': ageSorting === -1}"></i>
+            </button>
+
+            <br>
+
+
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Tel</th>
+                <th>Age</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="user in filteredUsers">
+                <td><img :src="user.picture.thumbnail" height="50" width="50"></td>
+                <td>{{user.name.first}} {{user.name.last}}</td>
+                <td>{{user.email}}</td>
+                <td>{{user.phone}}</td>
+                <td>{{user.dob.age}}</td>
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.js"></script>
+
+
+<script>
+
+  new Vue({
+    el: '#app',
+    data: {
+      users: [],
+      searchText: '',
+      gender: 'other',
+      ageSorting: 0,
+    },
+    computed: {
+      filteredUsers() {
+        return this.users
+          .filter(user => {
+            return !this.searchText || (user.name.first + ' ' + user.name.last).toLowerCase()
+              .includes(this.searchText.toLowerCase());
+          })
+          .filter(user => {
+            return (this.gender === 'other' || this.gender === user.gender);
+          })
+          .sort((user1, user2) => {
+            return (user1.dob.age - user2.dob.age) * this.ageSorting;
+          });
+      },
+    },
+    methods: {
+      async fetchUsers() {
+        this.searchText = '';
+        const { data: { results } } = await axios.get('https://randomuser.me/api/?results=20');
+        this.users = results;
+      },
+      coucou() {
+        alert('coucou !');
+      },
+      setAgeSorting() {
+        const nextSteps = {
+          '0': 1,
+          '1': -1,
+          '-1': 0,
+        };
+        this.ageSorting = nextSteps[this.ageSorting.toString()];
+      },
+    },
+  });
+
+
+</script>
+</body>
+</html>
